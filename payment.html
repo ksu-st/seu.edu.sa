@@ -194,6 +194,8 @@
                 receipt: document.getElementById('receipt').files[0]
             };
 
+            console.log(formData); // للتأكد من أن البيانات يتم جمعها بشكل صحيح
+            
             // عرض ملخص الفاتورة في الصفحة
             const summary = `
                 اسم صاحب الحساب: ${formData.accountName}
