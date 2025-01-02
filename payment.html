@@ -122,7 +122,6 @@
             width: 100%;
             bottom: 0;
         }
-
     </style>
 </head>
 <body>
@@ -144,7 +143,7 @@
 
         <h2>تفاصيل السداد</h2>
         <div class="form-container">
-            <form id="paymentForm" enctype="multipart/form-data">
+            <form id="paymentForm">
                 <div class="form-group">
                     <label for="accountName">اسم صاحب الحساب</label>
                     <input type="text" id="accountName" name="accountName" required>
@@ -179,20 +178,47 @@
         &copy; 2024 الجامعة السعودية الإلكترونية. جميع الحقوق محفوظة.
     </footer>
 
+    <!-- تضمين مكتبة jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
     <script>
-        document.getElementById('paymentForm').addEventListener('submit', async function(event) {
+        document.getElementById('paymentForm').addEventListener('submit', function(event) {
             event.preventDefault();
 
-            const formData = new FormData(this);
+            const formData = {
+                accountName: document.getElementById('accountName').value,
+                ibanNumber: document.getElementById('ibanNumber').value,
+                phone: document.getElementById('phone').value,
+                email: document.getElementById('email').value,
+                bankName: document.getElementById('bankName').value,
+                receipt: document.getElementById('receipt').files[0]
+            };
 
-            const response = await fetch('http://localhost:3000/submit', {
-                method: 'POST',
-                body: formData,
-            });
+            // عرض ملخص الفاتورة في الصفحة
+            const summary = `
+                اسم صاحب الحساب: ${formData.accountName}
+                رقم الآيبان: ${formData.ibanNumber}
+                رقم الجوال: ${formData.phone}
+                البريد الإلكتروني: ${formData.email}
+                اسم البنك: ${formData.bankName}
+            `;
+            
+            document.getElementById('responseMessage').innerText = "تم إرسال البيانات بنجاح!";
+            alert("تم إرسال البيانات بنجاح!"); // هنا يمكن عرض ملخص الفاتورة في نافذة منبثقة
 
-            const result = await response.json();
+            // استخدام jsPDF لإنشاء مستند PDF
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
 
-            document.getElementById('responseMessage').innerText = result.message;
+            doc.text("تفاصيل الفاتورة", 20, 20);
+            doc.text(summary, 20, 30);
+
+            // إضافة تاريخ ووقت
+            const date = new Date();
+            doc.text(`تاريخ الفاتورة: ${date.toLocaleDateString()}`, 20, 60);
+
+            // تحميل الفاتورة كملف PDF
+            doc.save('فاتورة_السداد.pdf');
         });
     </script>
 </body>
