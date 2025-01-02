@@ -180,37 +180,19 @@
     </footer>
 
     <script>
-        document.getElementById('paymentForm').addEventListener('submit', function(event) {
+        document.getElementById('paymentForm').addEventListener('submit', async function(event) {
             event.preventDefault();
 
-            const formData = new FormData();
-            formData.append("accountName", document.getElementById('accountName').value);
-            formData.append("ibanNumber", document.getElementById('ibanNumber').value);
-            formData.append("phone", document.getElementById('phone').value);
-            formData.append("email", document.getElementById('email').value);
-            formData.append("bankName", document.getElementById('bankName').value);
-            formData.append("receipt", document.getElementById('receipt').files[0]);
+            const formData = new FormData(this);
 
-            fetch('http://localhost:3000/save-invoice', {
+            const response = await fetch('http://localhost:3000/submit', {
                 method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    document.getElementById('responseMessage').innerText = "تم حفظ الفاتورة بنجاح!";
-                    // تحميل الفاتورة للمستخدم
-                    const downloadLink = document.createElement('a');
-                    downloadLink.href = `http://localhost:3000/invoices/${data.fileName}`;
-                    downloadLink.download = data.fileName;
-                    downloadLink.click();
-                } else {
-                    document.getElementById('responseMessage').innerText = "فشل في حفظ الفاتورة.";
-                }
-            })
-            .catch(error => {
-                document.getElementById('responseMessage').innerText = "حدث خطأ أثناء الاتصال بالخادم.";
+                body: formData,
             });
+
+            const result = await response.json();
+
+            document.getElementById('responseMessage').innerText = result.message;
         });
     </script>
 </body>
